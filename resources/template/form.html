@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>A Simple Tableless Form</title>
+<style>
+.form
+{
+}
+.form span
+{
+	float: left;
+	width: 120px;
+	clear: both;
+}
+.form .normal
+{
+	width: 120px;
+	float: none;
+}
+.form .short
+{
+	width: 50px;
+}
+.form input, .form select, .form textarea
+{
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+</style>
+</head>
+<body>
+
+<div class="form">
+	<h1>A Simple Tableless Form</h1>
+
+	<span>Name</span>
+	<input type="text" size="65" /><br />
+
+	<span>Property Address</span>
+	<input type="text" size="65" /><br />
+
+	<span>City</span>
+	<input type="text" />
+
+	<span class="normal short">State</span>
+	<select>
+		<option value="FL">FL</option>
+	</select>
+
+	<span class="normal short">Zip</span>
+	<input type="text" size="14" /><br />
+
+	<span>Email</span>
+	<input type="text" size="65" /><br />
+
+	<span>Message</span><br />
+	<textarea cols="65" rows="10"></textarea><br />
+
+	<input type="button" value="Submit" />
+</div>
+
+</body>
+</html>

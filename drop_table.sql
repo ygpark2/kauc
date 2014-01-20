@@ -1,0 +1,26 @@
+
+DROP TABLE IF EXISTS `ci_sessions`;
+DROP TABLE IF EXISTS `favorite_geo_markers`;
+DROP TABLE IF EXISTS `geo_business_categories`;
+DROP TABLE IF EXISTS `geo_business_comments`;
+DROP TABLE IF EXISTS `geo_business_contents`;
+DROP TABLE IF EXISTS `geo_businesses`;
+DROP TABLE IF EXISTS `geo_job_comments`;
+DROP TABLE IF EXISTS `geo_job_contents`;
+DROP TABLE IF EXISTS `geo_job_tag`;
+DROP TABLE IF EXISTS `geo_jobs`;
+DROP TABLE IF EXISTS `geo_log_comments`;
+DROP TABLE IF EXISTS `geo_log_contents`;
+DROP TABLE IF EXISTS `geo_log_tag`;
+DROP TABLE IF EXISTS `geo_logs`;
+DROP TABLE IF EXISTS `geo_property_comments`;
+DROP TABLE IF EXISTS `geo_property_contents`;
+DROP TABLE IF EXISTS `geo_properties`;
+DROP TABLE IF EXISTS `login_attempts`;
+DROP TABLE IF EXISTS `tags`;
+DROP TABLE IF EXISTS `categories`;
+DROP TABLE IF EXISTS `user_autologin`;
+DROP TABLE IF EXISTS `user_comments`;
+DROP TABLE IF EXISTS `user_message`;
+DROP TABLE IF EXISTS `user_profiles`;
+DROP TABLE IF EXISTS `users`;

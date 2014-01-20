@@ -1,0 +1,993 @@
+Ext.Element 취득
+
+HTML 문서는 보통 많은 HTML 요소로 구성되어 있습니다. 
+브라우저가 HTML 문서를 읽어 들일 때 HTML 요소에 포함된 태그는 HTMLElement로 변환됩니다
+Document Object Model (DOM) 트리를 작성합니다.
+이 DOM 트리는 브라우저의 전역 변수 document 에 저장됩니다.
+그리고 이 변수가 페이지에 로드된 모든 요소에 참조를 저장하게됩니다.
+그리고이 변수가 페이지에 로드된 모든 요소에 참조를 저장하게됩니다.
+
+이 document 개체는 getElementById 는 아주 중요한 방법을 제공하여줍니다. 
+이 메서드는 모든 브라우저에서도 document의 HTMLElement 을 가져줍니다.
+그러나 실제 DOM 조작 내용은 브라우저에서 차이가 매우 많기 때문에 세심한주의가 요구되고 있습니다.
+Ext Core에서는 HTMLElement을 포장 밖에 개의 크로스 대응을 한 Ext.Element라는 클래스를 제공합니다
+
+Ext.Element는 Ext Core 라이브러리에서 가장 많은 메소드를 가진 클래스입니다. 
+이러한 메서드는 다음과 같이 분류할 수 있습니다
+
+CSS 및 스타일
+(예 : setStyle, addClass)
+Dom 탐색 및 이동
+(예 : 쿼리, 선택, findParent)
+돔 작업
+(예 : createChild, 제거)
+크기
+(예 : getHeight, getWidth)
+Ext.get 메서드는 HTMLElement를 감싸는 Ext.Element의 인스턴스를 생성할 수 있습니다.
+예를 들어, 검색하고자하는 요소가 'myElementId'라는 id를 가지고있는 경우, 
+아래와 같이하여 얻을 수 있습니다 :
+Ext.get (var el = 'myElement' );
+Firebug 를 사용하여 아래의 코드를 실행하여보십시오.
+이 경우 "원시"JavaScript 객체를보고있는 경우가 많으므로 Public 메서드뿐만 아니라
+Private 메서드가 표시되는 것을주의하십시오.
+각 메서드에 대한 자세한 내용은 API 문서를 참조하십시오.
+
+
+console.dir 라는 메서드는 Firebug에서 제공하는 API 개체의 내용을보기 쉬운 형태로 표시하여줍니다.
+이 메서드는 더 개체에 포함된 자식 개체의 속성에 대해서도 같은 형식으로 표시하여줍니다.
+속성은 흑자로 나타나고 메서드 / 함수는 녹색, 생성자 및 클래스에 대해서는 빨간색으로 표시됩니다.
+
+myElementId 라는 id를 가진 위의 단락을 조작하자 (Firebug에서 실행을 참조하십시오).
+Ext.get (var el= 'myElement' ); 
+el.addClass ( 'error' );
+위의 코드를 실행하면 위 단락의 텍스트 색상이 빨간색으로 변경됩니다.
+이 문서는 "error"클래스를 가진 요소의 텍스트 색상을 빨강으로하는
+CSS 규칙이 미리 정의되어 있기 때문입니다. CSS 규칙은 다음과 같이되어 있습니다 :
+.error{ color:red;};
+2 다음 섹션에서는 요소의 CSS 및 스타일 사용에 대해 자세히 설명합니다.
+
+Flyweight 내용
+
+Flyweight 패턴 은 하나의 전역 객체를 생성하고 그 객체를 재사용함으로써 메모리 사용을
+최소화하는 디자인 패턴입니다. 
+Ext가 처음 로드될 때 Flyweight으로 이용하기위한 글로벌 Ext.Element를 생성합니다.
+이 전역 개체는 DOM의 모든 노드에 액세스하는 데 사용할 수 있습니다.
+이 Flyweight 객체에 액세스하려면 Ext.fly 메소드를 이용하며, 
+Ext사용 초기에는Ext.get과 Ext.fly 중 어느 것을 사용할지 고민 경우가 많습니다
+
+Ext.Element에 대한 참조를 나중에 사용하기 위하여 유지할 필요가있는 경우는
+반드시 Ext.get 메서드를 사용하십시오.
+반대로 Element에 대한 참조를 유지할 필요가없는 경우 
+프로그램간에 공유되는 Flyweight를 사용할 수 있습니다.
+이 Flyweight 객체에 액세스하려면 Ext.fly (elementId) 함수를 사용하십시오.
+
+error 클래스를 제거
+Ext.fly('myElementId').removeClass('error');
+이 코드가 실행되면 Ext.Element 개체를 새로 생성하지 않고 미리 만들어져 있던 공유
+Flyweight 객체를 이용하여 처리합니다. 
+Ext.fly은 한 - 라이너 (한줄 코드)와 같은 간단한 작업에 적합한 방법입니다.
+반대로 나중에 사용할 변수에 Flyweight 객체를 저장하는 일은 절대로하지 마십시오.
+왜냐하면 Flyweight 객체는 코드의 다른 부분에 의해 변경될 가능성이 있기 때문입니다.
+예를 들어, 다음 예제를보십시오 :
+
+var el = Ext.fly('foo');
+Ext.fly('bar').frame();
+el.addClass('error');
+
+frame 메서드는 Ext.Element 애니메이션 효과 패키지에 포함되어있는 하이라이트 효과를위한 방법입니다.
+그런데,이 경우 어떤 결과가 있을까요?
+응답은, "bar"라는 id를 가진 요소가 강조되고, 그 직후에 CSS의 error 클래스가 
+추가 텍스트 색상이 빨간색으로 바뀝니다. 
+"foo"라는 id를 가진 요소에는 아무런 변화가 일어나지 않습니다. 
+왜냐하면, el 라는 변수는 전역 Flyweight 객체를 참조하고, 그 Flyweight 객체는 
+"bar"에 frame함수를 적용했을 때 덮어 있기 때문입니다.
+만약이 동작을 이해할 수 없다면,이 부분을 다시 읽어주세요.
+Ext.fly 메소드를 이용하기 위해서는이 작동 방식을 제대로 이해해야합니다.
+
+Ext.get
+Ext.get 메서드는 HTMLElement, Ext.Element id(string)중 하나를 인수로 Ext.Element의 인스턴스를 생성합니다.
+다음 3 가지 방법은 모든 Ext.Element를 반환합니다 :
+
+var el1 = Ext.get('elId'); // element의id이용
+var el2 = Ext.get(el1);    // Ext.Element이용
+var el3 = Ext.get(el1.dom);// HTMLElement이용
+Ext.fly
+Ext.fly는 Ext.get과 같은 인자들을 가지고 있지만, 반환값은 내부적으로 관리되는 Flyweight 객체에 대한 참조입니다.
+이 반환 값은 Ext.fly 메소드가 호출될 때마다 참조가 바뀌어 버리기 때문에, 결코 다른 변수에 저장하지 마십시오.
+Ext.fly은 어디 까지나 Ext.Elemenet에 대한 참조가 필요하지 않은 경우
+Ext.Element의 인스턴스를 생성을 방지함으로써 실행 속도를 향상시키기위한 구조 입니다
+(예 : 간단한 작업을 실행하고 싶을 때 등).
+
+// 요소에 대해 간단한 작업을 수행합니다.
+Ext.fly ( 'elId' ) hide ();
+Ext.getDom
+Ext.getDom은 id (string), Dom 노드 Ext.Element를 인수로, Dom 노드를 반환합니다. 다음과 Ext.getDom 예제입니다 :
+
+// id를 바탕으로 Dom 노드를 접근 
+var elDom = Ext.getDom ( 'elId' ); 
+// Dom 노드를 바탕으로 Dom 노드접근
+var elDom1 = Ext.getDom (elDom); 
+ 
+// 변수가 Ext.Element 또는 Dom 노드가 확실하지 않은 경우에는 
+// Ext.getDom를 사용 
+function (el) {
+    var DOM = Ext.getDom (el);
+    // Dom 노드에 대한 처리
+}
+CSS 클래스와 스타일
+
+지금까지 HTML 요소에 대해, 또 그 요소가 문서와 어떻게 관련이 있는지, 그리고 Ext Core 메서드가
+이러한 데이터를 어떻게 얻을 것인가하는 것을 배우고 왔습니다.
+문서의 레이아웃은 어떨까요? 
+문서의 레이아웃과 스타일은 어떻게 조작하면 좋은 것일까요?
+응답은 Cascading Style Sheets(CSS)에 의한 스타일 지정을 사용하는 것입니다.
+CSS는 문서의 레이아웃이나 기타 모양에 대한 정보를 조작하기위한 언어입니다.
+Ext Core에서는 CSS 클래스 변경 및 스타일 지정을 직접 수정하여 문서의 HTML 요소의 스타일 변경을 용이하게합니다.
+
+<style type="text/css">
+myCls {
+    color: #F00;
+}
+</style>
+...
+<div type="myCls">Hello</div>
+위의 예에서는 'myCls'라는 CSS 클래스를 div태그로 설정되어, 'Hello'라는 글자의 색상을 빨간색(# F00)로 설정합니다.
+그럼 여기서 아까 나온 Firebug의 또 다른 멋진 도구를 살펴 보도록합니다. 
+페이지의 아무 곳이나 마우스 오른쪽 클릭하여 "(Inspect Element)"를 선택하십시오.
+Firebug 페이지의 DOM 트리로 선택한 요소를 강조하여 표시됩니다. 
+그 DOM 트리를 표시하는 패널의 오른쪽 패널을 보면 선택한 요소에 적용되는 모든 스타일이 표시되는 것입니다. 
+
+
+이 시점에서 아직 Firebug의 사용법을 잘 모르는 것 같으면 일단 매뉴얼을 쉬고, Firebug의 사용 방법을 공부하세요.
+Firebug은 WebApplication 개발을위한 필수 도구입니다. 
+Firebug를 사용하면 HTML 요소의 확인및 기존 사이트의 스타일을 변경하거나 새 사이트를 생성하고
+디버그할 때 매우 편리합니다. 다음은 CSS 작업을 위해 Ext Core에서 제공하는 기능을보고 갑시다.
+
+addClass
+HTML 요소에 CSS 클래스를 추가합니다.
+
+//myClass라는 CSS 클래스를 id가 'elId'인 HTML요소에 추가
+Ext.fly ( 'elId' ). addClass ( 'myCls');
+radioClass
+HTML 요소에 지정한 CSS 클래스를 추가하는 동시에 인접한 요소에 해당 CSS 클래스가 존재하는 경우
+그 요소로부터 그 CSS 클래스를 제거합니다.
+
+//'myCls'라는 CSS 클래스를 'elId'라는 id를 가진 HTML 요소에 추가하여 인접하는 요소에서 'myCls'을 제거
+Ext.fly ( 'elId' ). radioClass ( 'myCls' ) ;
+ 
+removeClass
+1 개 이상의 CSS 클래스를 HTML 요소에서 제거합니다 :
+
+Ext.fly ( 'elId' ). removeClass ( 'myCls' ); //HTML 요소에서 'myCls'삭제
+toggleClass
+지정된 CSS 클래스가 적용되지 않은 경우 추가, 적용되는 경우 삭제합니다.
+
+Ext.fly ( 'elId' ). toggleClass ( 'myCls' ); / / 'myCls'가 추가
+Ext.fly ( 'elId' ). toggleClass ( 'myCls' ); / / 'myCls'삭제
+Ext.fly ( 'elId' ). toggleClass ( 'myCls' ); / / 'myCls'이 다시 추가
+hasClass
+지정된 CSS 클래스가 적용되었는지 확인합니다 :
+
+if (Ext.fly ( 'elId' ). hasClass ( 'myCls' )) {
+// 'myCls'이 적용되는 경우의 처리
+}
+replaceClass
+지정된 CSS클래스를 다른 CSS클래스로 대체합니다 :
+
+Ext.fly ( '부인' ) (. replaceClass 'myClsA' , 'myClsB' );
+getStyle
+정규화된 HTML 요소의 스타일 (currentStyle과 computed 스타일)를 가져옵니다 :
+
+var color = Ext.fly('elId').getStyle('color');
+var zIndx = Ext.fly('elId').getStyle('z-index');
+var fntFmly = Ext.fly('elId').getStyle('font-family');  
+setStyle
+HTML 요소의 스타일 속성을 직접 설정합니다. 문자열이나 개체 상수값으로 지정할 수 있습니다
+
+Ext.fly('elId').setStyle('color', '#FFFFFF');
+Ext.fly('elId').setStyle('z-index', 10);
+Ext.fly('elId').setStyle({
+    display : 'block',
+    overflow : 'hidden',
+    cursor : 'pointer'
+});
+// 색변환 애니메이션 설정
+Ext.fly('elId').setStyle('color', '#FFFFFF', true);
+// 색변환 애니메이션 설정
+Ext.fly('elId').setStyle('color', '#FFFFFF', {duration: .75}); 
+// ... etc 
+getColor
+지정된 속성의 정규화된 색상 값 (6 자리 16 진수)를 반환합니다. 지정된 속성에 값이 설정되어 있지 않은 경우 기본값과 접두사 (기본값은 #)를 인수로 지정할 수 있습니다.
+
+Ext.fly('elId').getColor('background-color');
+Ext.fly('elId').getColor('color');
+Ext.fly('elId').getColor('border-color');        
+        
+setOpacity
+HTML 요소의 투명도를 설정합니다 :
+
+Ext.fly('elId').getColor('background-color');
+Ext.fly('elId').getColor('color');
+Ext.fly('elId').getColor('border-color');  
+clearOpacity
+HTML 요소의 투명도 설정을 해제합니다 :
+
+Ext.fly('elId').clearOpacity();
+DOM 탐색
+
+Web 응용 프로그램을 개발하고 있다고 어떤 작업을 수행하는 DOM 트리의 지점에서 트리의 
+다른 위치로 이동하는 등의 필요가 항상 발생합니다. 
+Ext Core에서 DOM 트리를 자유 자재로 이동하기위한 크로스 브라우저를 지원하는 메서드를 제공합니다.
+그리고 CSS를 사용하면보다 복잡한 이동 작업을 비교적 쉽게 할 수 있습니다.
+이 분야에 놓고 CSS3 셀렉터는 매우 강력한 도구가 될 수 있습니다.
+아래의 HTML을 참조하십시오 :
+
+  <style type="text/css">
+    .red {
+        color: #F00;
+    }
+</style>    
+...
+<div id='elId'>
+    <ul>
+        <li>a-one</li>
+        <li>a-two</li>
+        <li>a-three</li>
+        <li>a-four</li>
+    </ul>
+    <ul>
+        <li>b-one</li>
+        <li>b-two</li>
+        <li>b-three</li>                
+    </ul>
+</div>
+이 HTML의 목록 요소에 대해 1 개 간격으로 텍스트 색상을 빨강으로 필요가 있었다고합니다.
+Ext Core에서는 아래의 한 라인을 추가합니다.
+Ext.fly('elId').select('li:nth-child(2n)').addClass('red')
+
+Ext Core의 DOM 탐색 API의 다른 기능에 대해 살펴 보도록하자 :
+is
+지정된 선택과 일치하는지 확인합니다 :
+var el = Ext.get('elId');
+if (el.is('p.myCls')) {
+ //
+}   
+findParent
+지정된 선택과 일치하는 현재 노드의 부모 노드를 검색합니다 (현재 노드에서 검색 시작) :
+Ext.fly('elId').findParent('div'); //'elId'부모 노드에서 div 태그의 노드를 반환
+Ext.fly('elId').findParent('div', 4); // 'elId'에서 4 계층에까지 부모 노드를 검색
+Ext.fly('elId').findParent('div', null, true); // 반환값을 Ext.Element로 반환
+findParentNode
+지정된 선택 일치하는 부모 노드를 검색합니다 (부모 노드에서 검색 시작) :
+Ext.fly('elId').findParentNode('div');  
+up
+지정된 선택 일치하는 부모 노드를 검색합니다 (부모 노드에서 검색 시작), Ext.Element를 반환합니다 :
+Ext.fly('elId').up('div');
+Ext.fly('elId').up('div', 5); // 5수준에 도달할 때까지 상위노드 검색
+select
+이 메서드는 선택기를 인수를 사용하여 Ext.CompositeElement 또는 Ext.Element의 배열을 반환합니다.
+또한이 메서드를 Ext.Element 방법으로 부를 경우, 해당 요소를 기점으로 검색을
+수행하고 Ext.select로 부를 경우 전체 문서를 검색합니다
+// 검색 결과 CompositeElement로 반환
+Ext.fly('elId').select('div:nth-child(2)');
+// 검색 결과 Ext.Element로 반환
+Ext.fly('elId').select('div:nth-child(2)', true);
+// 도큐먼트전체 검색
+Ext.select('div:nth-child(2)');
+query
+이 메서드는 선택기를 인수를 사용하여 DOM 노드의 배열을 반환합니다. 제 2 인수 (옵션)로 찾기의 기점이되는 요소를 지정할 수 있습니다 (기본값은 문서 루트).
+Ext.query('div:nth-child(2)');  //선택 일치하는 DOM 노드의 배열을 반환
+child
+인수로 전달 셀렉터에 일치하는 현재 요소의 아래에 자식 노드를 1 개만 반환합니다.
+Ext.fly('elId').child('p.highlight');        // Ext.Element 반환
+Ext.fly('elId').child('p.highlight', true);  // DOM 노드를 반환
+down
+인수로 전달 셀렉터에 일치하는 현재 요소의 직계 자식 노드를 1 개만 반환합니다
+Ext.fly('elId').down('span');  // Ext.Element 반환
+Ext.fly('elId').down('span', true);  // DOM 노드를 반환
+parent
+인수로 선택을 전달하면 일치하는 노드를 찾을 때까지 계층을 올라가 있습니다.
+// 부모 노드를 Ext.Element로 반환
+Ext.fly('elId').parent();  
+// 부모 노드를 DOM로 반환
+Ext.fly('elId').parent("", true);
+//div 태그의 부모 노드를 찾고 Ext.Element로 반환
+Ext.fly('elId').parent("div"); 
+next
+다음 이웃 노드를 반환합니다 (텍스트 노드는 생략합니다).
+셀렉터가 인수로 전달된 경우 선택에 맞는 첫 번째 인접 노드를 반환합니다.
+//다음 인접노드를 Ext.Element반환
+Ext.fly('elId').next();
+//다음 인접노드를 DOM 노드 반환
+Ext.fly('elId').next("", true);
+// div 태그의 인접 노드를이 요소의 뒤에 찾아 Ext.Element로 반환
+Ext.fly('elId').next("div"); 
+prev
+이전 병렬 노드를 반환합니다 (텍스트 노드는 생략합니다).
+셀렉터가 인수로 전달된 경우 선택에 맞는 첫 번째 인접 노드를 반환합니다.
+// 인전 인접노드를 Ext.Element 반환
+Ext.fly('elId').prev();
+//인전 인접노드를 DOM노드로 반환
+Ext.fly('elId').prev("", true);
+// div 태그의 인접 노드를이 요소의 앞을 찾아 Ext.Element로 반환 
+Ext.fly('elId').prev("div");  
+first
+첫 번째 자식 노드를 반환합니다 (텍스트 노드는 생략합니다).
+셀렉터가 인수로 전달된 경우 선택에 맞는 첫 번째 자식 노드를 반환합니다.
+Ext.fly('elId').first();
+// 첫번째 자식 노드를 DOM 노드로 반환
+Ext.fly('elId').first("", true);
+//div 태그를 가진 첫 번째 자식 노드를이 요소 내에서 찾고 Ext.Element로 반환
+Ext.fly('elId').first("div"); 
+last
+마지막 자식 노드를 반환합니다 (텍스트 노드는 생략합니다).
+셀렉터가 인수로 전달된 경우 선택에 맞는 마지막 자식 노드를 반환합니다.
+Ext.fly('elId').last();
+// 마지막 자식 노드를 DOM 노드로 반환
+Ext.fly('elId').last("", true);
+// div 태그가 마지막 자식 노드를이 요소 내에서 찾고 Ext.Element로 반환
+Ext.fly('elId').last("div");
+DOM을 조작
+
+Ext.Element
+
+동적 HTML 페이지에서 자주 수행하는 작업은 DOM 트리에서 요소의 생성 및 삭제 처리합니다.
+실제로 브라우저 간의 구현 방법의 차이로 인해 이러한 작업은 어려운 것으로되어 있습니다.
+Ext Core에서는 이러한 브라우저 간의 차이를 흡수뿐만 아니라, 최대한 효율적인 처리를
+가능하게하기위한 강력한 API들을 제공하고 있습니다.
+이러한 DOM 조작 API를 통해 DOM 트리의 지점 (노드에서 상대적으로)에 새 노드를 추가하거나 제거할 수 쉽습니다.
+는 다음 HTML을 기반으로 실제 예제를 살펴 봅시다 :
+
+<div id='elId'>
+    <p>paragraph one</p>
+    <p>paragraph two</p>
+    <p>paragraph three</p>
+</div>
+위의 HTML을 실제로 표시하면 아래와 같습니다 : 
+
+먼저 새 노드를 생성하고 'elId'노드의 첫 번째 자식 노드로 삽입하여 보자 :
+Ext.fly('elId').insertFirst({
+    tag: 'p',
+    html: 'Hi I am the new first child'
+});
+노드가 삽입되었습니다 : 
+
+간단하네요! Ext Core에서 제공하는 더 강력한 API를 살펴 보도록하자 :
+AppendChild
+인수로 전달 요소를 추가합니다.
+ar El = Ext.get( 'elId1' );
+/ / 'elId2'라는 id를 가진 DOM 노드를 추가
+Ext.fly( 'elId' ).appendChild( 'elId2' );
+/ / el라는 Ext.Element 추가
+Ext.fly ( 'elId' ).appendChild (el);
+/ / 배열의 id를 가진 DOM 노드를 추가
+Ext.fly( 'elId' ).appendChild( 'elId2', 'elId3' ]);
+/ / DOM 노드를 추가
+Ext.fly( 'elId' ).appendChild(el.dom);
+/ / Ext.select 결과 CompositeElement 추가
+Ext.fly( 'elId' ).appendChild(Ext.select( 'div' ) ); 
+appendTo
+이 Ext.Element은 인수로 전달된 요소에 추가합니다.
+var el = Ext.get('elId1'); 
+ 
+Ext.fly('elId').appendTo('elId2');  // 'elId2'라는 id를 가진 DOM 노드에 추가
+Ext.fly('elId').appendTo(el);  // el라는 Ext.Element 추가
+insertBefore
+이 Ext.Element은 인수로 전달된 요소 앞에 삽입합니다.
+var el = Ext.get('elId1'); 
+// 'elId2'라는 id를 가진 DOM 노드 바로 앞에 추가
+Ext.fly('elId').insertBefore('elId2');
+// Ext.Element바로 앞에 추가
+Ext.fly('elId').insertBefore(el);
+insertAfter
+Ext.Element은 인수로 전달된 요소 바로 다음에 삽입합니다.
+var El = Ext.get( 'elId1' );             
+// 'elId2'라는 id를 가진 DOM 노드 바로 다음에 삽입
+Ext.fly( 'elId' ).insertAfter ( 'elId2' );
+// el라는 Ext.Element 바로 다음에 삽입
+Ext.fly( 'elId' ).insertAfter (el);
+insertFirst
+인수로 전달된 Ext.Element id (문자열) Ext.DomHelper의 콘피그옵션이 
+Ext.Element 자신의 첫 번째 자식 노드로 삽입합니다 (Ext.DomHelper가 전달된 경우 새 노드가 생성된 삽입됩니다.)
+var el = Ext.get('elId1'); 
+// 'elId2'라는 id를 가진 DOM 노드를 가장 자식 노드로 삽입
+Ext.fly('elId').insertFirst('elId2');  
+// el 라는 Ext.Element을 가장 자식 노드로 삽입
+Ext.fly('elId').insertFirst(el);
+ 
+//Ext.DomHelper으로 새로운 노드를 생성하고 가장 자식 노드로 삽입
+Ext.fly('elId').insertFirst({
+    tag: 'p',
+    cls: 'myCls',
+    html: 'Hi I am the new first child'
+}); 
+replace
+인수로 전달된 요소를 자신으로 대체합니다.
+var el = Ext.get('elId1'); 
+ //'elId2'라는 id를 가진 DOM 노드를 'elId'라는 id를 가진 DOM 노드로 대체
+Ext.fly('elId').replace('elId2'); 
+ //el라는 Ext.Element을 'elId'라는 id를 가진 DOM 노드로 대체
+Ext.fly('elId').replace(el);
+replaceWith
+인수로 전달된 Ext.Element id (문자열) Ext.DomHelper의 콘피그옵션으로 자신을 바꿉니다
+(Ext.DomHelper가 전달된 경우 새로운 노드가 생성되고 대체됩니다).
+var el = Ext.get('elId1'); 
+Ext.fly('elId').replaceWith('elId2');  // 'elId'라는 id를 가진 DOM 노드를 'elId2'으로 치환
+Ext.fly('elId').replaceWith(el);  // 'elId'라는 id를 가진 DOM 노드를 el라는 Ext.Element로 대체
+ 
+// Ext.DomHelper으로 새로운 노드를 생성하고 'elId'라는 id를 가진 DOM 노드를 대체
+Ext.fly('elId').replaceWith({
+    tag: 'p',
+    cls: 'myCls',        
+    html: 'Hi I have replaced elId'
+});    
+remove
+자신을 DOM 노드와 캐시에서 제거합니다
+//elId라는 id를 가진 DOM 노드를 DOM 트리에서 삭제
+Ext.fly('elId').remove(); 
+removeNode
+지정한 DOM 노드를 문서에서 삭제. body 노드가 전달된 경우는 무시됩니다.
+//elId라는 id를 가진 DOM 노드를 DOM 트리에서 삭제
+Ext.fly('elId').remove(); 
+Ext.DomHelper 콘피그옵션
+
+위의 예제에서 다음과 같은 코드가 나옵니다 :
+.insertFirst({
+    tag: 'p',
+    html: 'Hi I am the new first child'
+}); 
+이 inserFirst 인수는 도대체 무엇인가라고 생각 했을지도 모릅니다.
+이것은 Ext.DomHelper라는 클래스 (아래)에 전달 콘휘구오뿌숀 그 자체이며, 어떤 HTML을 생성하는가하는 것을 보여줍니다.
+Ext.DomHelper의 콘휘구오뿌숀에서 생성하는 자식 노드에 대해 다양한 속성을 설정할 수 있습니다
+(예 : HTML의 일부를 그대로 쓰고, CSS 클래스, url, src, id 같은 DOM 노드의 속성 정보 그 자체 를 지정할 수 있습니다.) 
+다음 Ext.DomHelper의 콘피그옵션를 인수로 사용 가능한 Ext.Element 메서드의 예입 둡니다 :
+
+createChild
+전달된 Ext.DomHelper의 콘휘구오뿌숀를 바탕으로 DOM 노드를 생성 자식 노드로 삽입합니다 (자신의 자식 노드를 인수로 전달하여 해당 노드 앞에 삽입할 수 있습니다.) var dhConfig = { tag: 'p', cls: 'myCls', html: 'Hi I have replaced elId' };   //'elId'라는 id를 가진 DOM 노드 새로운 노드를 생성 삽입 el.createChild(dhConfig); //el의 첫 번째 자식 노드 바로 앞에 새로운 노드를 생성 삽입 el.createChild(dhConfig, el.first());
+wrap
+전달된 Ext.DomHelper의 콘휘구오뿌숀를 바탕으로 DOM 노드를 생성하고이 Ext.Element을 포장하는 DOM 노드로 삽입합니다.
+Ext.fly('elId').wrap(); // 'elId'라는 id를 가진 DOM 노드를 div 태그로 랩핑
+ 
+//'elId'라는 id를 가진 DOM 노드를 새로 생성된 DOM 노드로 랩핑
+Ext.fly('elId').wrap({
+    tag: 'p',
+    cls: 'myCls',        
+    html: 'Hi I have replaced elId'
+});    
+HTML 조각
+
+HTML 조각은 그 이름 그대로, HTML "칩"입니다.
+Ext Core는이 HTML 조각을 사용하여 DOM 조작을위한 API를 제공하고 있습니다.
+브라우저 간의 차이와 실행 속도에 대해서도 걱정하지 마십시오. 예를 들어, 다음 예제를 보자 :
+
+<div id='elId'>
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>    
+</div>
+위의 HTML에 아래 코드를 실행하면 어떤 결과가된다고 생각하십니까?
+
+Ext.fly('elId').insertHtml('beforeBegin', '<p>Hi</p>') 
+코드 실행하면 HTML을 살펴 보도록하자 :
+
+<p>Hi</p>    
+<div id='elId'>
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>    
+</div>  
+어떻습니까? 'beforeBegin'인수를 포기함으로써 또 다른 인수로 전달 HTML 조각의 삽입 위치를 지정할 수있었습니다.
+다음 코드는 어떨까요? :
+
+Ext.fly('elId').insertHtml('afterBegin', '<p>Hi</p>');
+결과는 ... :
+<div id='elId'>
+    <p>Hi</p>   
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>    
+</div>  
+'beforeEnd'로 지정하여 보자 :
+Ext.fly('elId').insertHtml('beforeEnd', '<p>Hi</p>');
+결과는 ... :
+<div id='elId'>    
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>
+    <p>Hi</p>   
+</div>
+마지막으로 'afterEnd'을 지정하여보십시오 :
+Ext.fly('elId').insertHtml('afterEnd', '<p>Hi</p>');
+결과는 ... :
+<div id='elId'>    
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>    
+</div>
+<p>Hi</p>
+HTML 조각은 다음 메서드에서 사용할 수 있습니다 :
+insertHtml
+HTML 조각이 Ext.Element 자신에 삽입합니다. 인수로 삽입할 위치를 지정해야합니다
+(beforeBegin, beforeEnd, afterBegin, afterEnd).
+반환 값으로 Ext.Element 또는 DOM 노드를 반환하도록 지정할 수 있습니다.
+Ext.fly('elId').insertHtml(
+    'beforeBegin',
+    '<p><a href="anotherpage.html">click me</a></p>'
+); // DOM노드 반환
+Ext.fly('elId').insertHtml(
+    'beforeBegin',
+    '<p><a href="anotherpage.html">click me</a></p>',
+    true
+); // Ext.Element 반환 
+Ajax
+
+Ext Core는 강력한 Ajax 용 API가 포함되어 있습니다.
+Ajax 용 API에 대해서는 다음 섹션에서 자세히 다루고 있지만
+Ext.Element에서 사용할 수있는 Ajax 방법에 대해 간략하게 설명합니다.
+
+load
+Ext.Element 내부 개체 (Ext.Updater)의 update 메소드를 직접 호출합니다. 인수는 Ext.Upater.update와 동일합니다.
+Ext.fly('elId').load({url: 'serverSide.php'})        
+        
+getUpdater
+Ext.Element 내부 개체 (Ext.Updater)를 가져옵니다.
+var updr = Ext.fly('elId').getUpdater();
+updr.update({
+        url: 'http://myserver.com/index.php',
+        params: {
+            param1: "foo",
+            param2: "bar"
+        }
+});
+이벤트 처리
+
+이벤트 처리는 브라우저 간의 차이에 크게 고민하는 주제 중 하나입니다.
+브라우저가 제공하는 이벤트 처리 함수를 이용하는 경우, 이벤트를 추가 삭제하는 데
+필요한 메서드가 원래 브라우저 간 다를뿐 아니라 다른 잡다한 일관성 없음에 고민하는 것입니다.
+Ext Core에서는 개발자가 직면하는 이러한 차이를 흡수하여 크로스 브라우저를 지원하는 이벤트 처리를 실현하고 있습니다
+
+Ext Core는 이벤트 처리에서 일관된 인터페이스를 제공함으로써
+개발자 크로스 브라우저 문제에서 해방뿐만 아니라, 풍부한 이벤트 모델을 제공하고 있습니다.
+Ext.Element이 DOM 노드 자체를 포장하는 존재인데 반해 이벤트를 포장하는
+Ext.EventObject 클래스가 Ext Core에서 제공되고 있습니다.
+Ext.EventObject 마우스 버튼이나 키보드 누름, 이벤토뿌로빠게숀의 구조, 기본 작업 취소와
+같은 브라우저에서 다른 작업을 표준화하고 통일된 인터페이스를 제공합니다.
+
+이벤트 핸들러 함수를 페이지의 Ext.Element에 결부는 on 이라는 메서드를 사용합니다.
+Ext.Element.on 메서드는 Ext.Element.addListener 약어이지만 작성해 실수 방지 
+짧고 읽기 쉬운 코드라는 관점에서 제품의 사용이 권장됩니다.
+제 1 인수는 관측 대상 (subscribe)와 이벤트 이름, 그리고 제 2 인수에 이벤트 핸들러 함수를 전달합니다.
+
+Ext.fly('myEl').on('click', function(e, t) {
+    // myEl에 클릭 이벤트시 처리
+    // e는 무엇이 일어났는지를 나타내는 Ext.EventObject 인스턴스
+    // t는 이벤트가 발생한 Ext.Element
+});
+Ext Core에서는 모든 DOM 이벤트를 정규화하여 취급하고 있습니다.
+이벤트에 결부되는 이벤트 핸들러 함수는 항상 EventObject 인스턴스 및 이벤트가 발생한 HTMLElement를 인수로받을 수 있습니다.
+이벤트 처리 메서드를 살펴 보도록하자 :
+
+addListener
+이벤트 핸들러 함수를이 Ext.Element에 연결합니다. 약어 "on"의 이용이 권장됩니다.
+var El = Ext.get ( 'elId' );
+el.on( 'click' , function (e, t) {
+    // e는 정규화된 이벤트 객체 (Ext.EventObject) 
+    // t를 클릭할 Ext . Element 
+    // this도 t를 참조합니다         
+});
+removeListener
+Ext.Element으로 연결되는 이벤트 핸들러 함수를 제거합니다. 약어는 "un"입니다
+var el = Ext.get('elId');
+el.un('click', this.handlerFn);
+// or
+el.removeListener('click', this.handlerFn);
+Ext.EventObject
+Ext.EventObject는 크로스 브라우저를 지원하는 이벤트 모델 인터페이스를 제공하고 
+필요한 경우 W3C에서 정의되는 이벤트에 대한 메서드와 같은 것도 제공합니다
+//e는 일반적인 이벤트 객체가 아니라 Ext.EventObject 인스턴스 
+function handleClick(e){ 
+    e.preventDefault();
+    var target = e.getTarget();
+    ...
+}
+var myDiv = Ext.get('myDiv');
+myDiv.on("click", handleClick);
+// 등록
+Ext.EventManager.on('myDiv', 'click', handleClick);
+Ext.EventManager.addListener('myDiv', 'click', handleClick);        
+이벤트 처리 (응용편)
+
+Ext Core 이벤트 위임, 버퍼 지연 실행 등보다 복잡한 이벤트 처리를위한 편리한 메소드가 용이합니다
+
+위임
+이벤트 위임은 메모리 사용량을 줄이면서 메모리 누수를 방지하기 위해 사용되는 기술입니다. 기본적인 아이디어 눈에는 "그룹에 속하는 여러 요소 각각에 이벤트 핸들러 함수를 등록하는 것이 아니라, 해당 그룹을 내포하는 요소 (컨테이너 요소) 1 개의 이벤트 핸들러 함수를 연결 이벤트 버블의 구조를 이용하여 컨테이너 요소 이벤트 처리를 통합 일원화 " 라는 것입니다. 이것은 body 태그에 단지 1 개의 전역 이벤트 핸들러 함수를 연결한다는 의미는 아닙니다. 분명 페이지에서 발생하는 이벤트는 마지막으로 body 태그까지 올라갑니다, 거기까지 해 버리면 반대로 실행 속도에 나쁜 영향을 주어 버리게됩니다. 이 기술은 예를 들어 드롭 다운 목록 또는 캘린더와 같은 수많은 요소에 의해 구성되는 그룹에 아주 효과적입니다. 는 예제를 살펴 봅시다 : 
+다음 HTML을 참조하십시오 :
+<ul id='actions'>
+    <li id='btn-edit'></li>
+    <li id='btn-delete'></li>
+    <li id='btn-cancel'></li>
+</ul> 
+ 다음과 같이 이벤트 핸들러 함수를 모든 목록 항목에 연결할 것이 아니라 :
+Ext.fly('btn-edit').on('click', function(e,t) {
+    //이벤트처리
+});
+Ext.fly('btn-delete').on('click', function(e,t) {
+    //이벤트처리
+});
+Ext.fly('btn-cancel').on('click', function(e,t) {
+    //이벤트처리
+});
+이벤트 위임 기법을 이용하기 위해서는 컨테이너 요소에 필요한 프로세스를 통합 이벤트 핸들러 함수를 결합합니다 :
+Ext.fly('actions').on('click', function(e,t) {
+    switch(t.id) {
+        case 'btn-edit':
+        // 이벤트처리
+        break;
+        case 'btn-delete':
+        // 이벤트처리
+        break;
+        case 'btn-cancel':
+        // 이벤트처리
+        break;
+    }
+});        
+이벤트는 DOM 트리를 상위 계층을 올라가는 때문에 목록 항목에서 발생하는 이벤트는 
+모두 'actions'라는 이벤트 핸들러 함수를 묶은 div 태그에 도달하게됩니다.
+이벤트 핸들러 함수는 switch 문을 사용하여 이벤트의 발생원 다른 작업을 수행합니다.
+이 방법이면 이벤트 핸들러 함수는 1 개만에서 목록 항목의 수가 증가해도 비교적 쉽게 대응할 수 있습니다.
+delegate
+이것은 addListener / on 메소드의 제 4 인수로 전달할 속성을 1 개로, 이벤트 위임을 사용할 때 유용합니다. 이 속성에 어떤 선택을 설정하여 이벤트 대상 또는 대상의 자식 노드 사이에서 일치하는 것을 검색합니다.
+el.on('click', function(e,t) {
+    //클릭 이벤트를 처리
+}, this, {
+    //CSS 클래스 'clickable'을 가진 자식 노드에 이벤트 대상을 세분화
+    delegate:'.clickable'
+});                  
+single
+이것은 addListener / on 메소드의 제 4 인수로 전달할 속성을 1 개로,이 속성을 true로 설정하면 이벤트 핸들러 함수는 한 번만 실행되는 즉시이 Ext.Element에서 제거됩니다.
+el.on('click', function(e,t) {
+    //클릭시의 처리
+}, this, {
+    // 이벤트 핸들러 함수의 호출 후에 제거
+    single:true 
+}); 
+buffer
+이것은 addListener / on 메소드의 제 4 인수로 전달할 속성을 1 개로,이 속성을 설정하면 이벤트 핸들러 함수를 Ext.util.DelayedTask (후술)의 구조를 이용하여 지연 실행할 수 있습니다. 단위는 밀리초 단위로 지정합니다. 만일 설정 시간 내에 같은 이벤트가 발생했을 경우에는 이전의 이벤트 핸들러는 취소되고 새로운 이벤트 처리가 지정한 밀리초 후에 실행됩니다.
+el.on('click', function(e,t) {
+    // 클릭 처리 
+}, this, {
+    buffer: 1000 
+    //클릭 이벤트가 발생하고  (1 초) 후에 이벤트 핸들러 함수를 실행
+});
+delay
+최고 buffer처럼 이벤트 핸들러 함수를 지정된 시간 이후에 실행되지만, 설정 시간에 같은 이벤트가 발생해도 이전 이벤트 핸들러 처리는 취소되지 않습니다. 즉 이전 이벤트 처리 후 새로운 이벤트가 처리되는 것입니다.
+ el.on('click', function(e,t) {
+    // 클릭 처리 
+}, this, {
+    delay: //(1 초) 후에 이벤트 발생하고 핸들러 함수를 실행하는 (취소없이)
+}); 
+target
+이것은 addListener / on 메소드의 제 4 인수로 전달할 속성을 1 개로,이 속성에는 이벤트의 대상으로하고 싶은 노드 (Ext.Element)을 설정하면 이벤트 핸들러 함수는 노드에 이벤트 버블이 이벤트가 올라 온 경우에만 실행됩니다.
+el.on('click', function(e,t) {
+    // 클릭시의 처리
+}, this, {
+    // 이벤트가 첫 번째 div 태그에 도착할 때 실행
+    target: el.up('div') 
+});               
+ 
+hover
+Ext Core는 호버 효과를 생성하기위한 메소드를 제공하고 있습니다. Ext.Element.hover 메서드는 마우스가 요소에 들어가고 나올 수했을 때 지정된 함수를 실행합니다. hover 메서드 실행되고있다 "mouseenter / leave"이벤트는 원래 Internet Explorer 관련 이벤트인데 "mouseover / out"이벤트와 달리 자식 노드에서 이벤트가 주워 없습니다. Ext Core에서는이 "mouseenter / leave"이벤트를 IE 이외의 W3C 호환 브라우저에서 사용할 수 있도록하고 있습니다.
+// 마우스가 요소에 들어올 때 처리
+function enter(e,t){
+    t.toggleClass('red');
+}
+// 마우스가 요소 나올 때 처리
+function leave(e,t){
+    t.toggleClass('red');
+}
+// hover를 호출
+el.hover(enter, leave); 
+removeAllListeners
+이 Ext.Element에 등록한 모든 이벤트 핸들러 함수를 제거합니다.
+el.removeAllListeners ();
+크기 취급
+
+페이지의 특정 요소의 크기를 다시 설정하거나 그 정보를 검색하고 같은 것은 자주 수행하는 작업중 하나입니다. 여기서도 Ext Core 브라우저 간의 차이를 흡수하여 크기를 다루기위한 API를 제공하고 있습니다. 또한 대부분의 setter 메소드 (setXXX ())에서 애니메이션 효과를 위해 인수를 취할 수 있도록되어 있습니다 (단지 true를 전달하면 기본 효과, 콘피그옵션를 통과하면 사용자 지정 효과를 얻을 수 있습니다 ). 에서 자세히 살펴 보도록하자:
+
+//기본 애니메이션효과와 함께 높이를200으로 설정
+Ext.fly('elId').setHeight(200, true);
+ 
+// 사용자 지정 애니메이션 효과와 함께 높이를 150px로 설정
+Ext.fly('elId').setHeight(150, {
+    duration : .5, //애니메이션 효과의 지속 시간을 0.5 초로 설정
+    callback: function(){ this.update("finished"); } 
+});      
+여기에서 Firebug를 열고 적절한 요소를 마우스 오른쪽 클릭하여 "요소를 조사 (Inspect Element)"을 선택하여보십시오. Firebug의 오른쪽 패널의 "레이아웃"탭을 선택하면 아래와 같은 그림이 나타날 것입니다 :  여기에는 선택한 요소의 크기에 관한 모든 정보를 볼 수있어 개발시 매우 유용합니다. 위 그림 (좀 작지만)에서이 요소는 폭이 895px, 높이가 1669px, 패딩, 테두리, 마진 면에서인지는 0px라는 것을 알 수 있습니다. 이러한 정보는 모두 Ext.Element 메서드를 사용하여 가져올 수 있습니다.
+var dimSz = Ext.get('dim-sizing');
+var padding = dimSz.getPadding('lrtb'); // 값은0
+var border = dimSz.getBorderWidth('lrtb'); // 값은0
+var height = dimSz.getHeight(); // 값은1691
+var width = dimSz.getWidth(); // 값은895
+위의 코드를 Firebug에 복사하고 실행하여보십시오. 또한 setter 메소드를 사용하여 실제 너비와 높이를 변경하고 Firebug의 페이지 레이아웃이 어떻게 변화하는지 관찰보세요 ( 주의 : 만약 동일하지 않을 경우에는 브라우저 자체의 크기를 변경해주세요 ). 
+나머지 메서드를 살펴 봅시다 :
+getHeight
+요소의 높이 (offsetheight)을 반환합니다
+var ht = Ext.fly('elId').getHeight();
+getWidth
+요소의 너비 (offsetwidth)을 반환합니다
+var ht = Ext.fly('elId').getWidth ();
+setHeight
+요소의 높이를 설정합니다
+Ext.fly('elId').setHeight();
+setWidth
+요소의 너비를 설정합니다
+Ext.fly('elId').setWidth();
+getBorderWidth
+지정된 모서리 (들)의 국경 너비를 반환합니다. 각 모서리는 t, l, r, b, 또는 이들의 조합을 전달하여 그 주변의 합계 값을 반환하도록 지정할 수 있습니다. 예를 들면 "lr"를 전달하면, 왼쪽 및 오른쪽 테두리 너비의 합계가 반환됩니다.
+var bdr_wd = Ext.fly('elId').getBorderWidth('lr');
+getPadding
+지정된 모서리 (들)의 패딩 폭을 돌려줍니다. 각 모서리는 t, l, r, b, 또는 이들의 조합을 전달하여 그 주변의 합계 값을 반환하도록 지정할 수 있습니다. 예를 들면 "lr"를 전달하면, 왼쪽과 오른쪽 패딩 너비의 합계가 반환됩니다.
+var padding = Ext.fly('elId').getPadding('lr');
+clip
+현재 overflow 설정을 유지하면서 흘러나오는 내용을 클립합니다. 취소는 unclip 메서드를 사용합니다.
+Ext.fly('elId').clip();
+unclip
+clip 메서드의 실행 결과를 원래의 overflow 설정으로 되돌립니다.
+Ext.fly('elId').unclip();
+isBorderBox
+실행 환경이 Internet Explorer에서하고 "non - strict mode"의 경우 true를 반환합니다
+if (Ext.isBorderBox) {
+    // 처리
+}        
+        
+위치의 취급
+
+Ext Core에서는 요소의 위치에 대해서도 모든 브라우저에서 쉽게 다루기위한 다양한 API를 제공하고 있습니다. 위의 크기를 취급하는 API와 마찬가지로 대부분의 setter 메소드에 애니메이션 효과를 설정할 수 있습니다. 이제 실제 예제를 살펴 봅시다 :
+
+//사용자 애니메이션 효과 설정
+Ext.fly('elId').setX(75, {
+    duration : .5, //애니메이션 효과의 지속 시간을 0.5 초로 설정
+    callback: function(){ this.update("finished"); }
+});
+getX, getY
+Ext.Element 현재 X / Y 좌표 (페이지에서)를 반환합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+var elX = Ext.fly('elId').getX();
+var elY = Ext.fly('elId').getY();
+getXY
+Ext.Element의 현재 좌표 (페이지에서)를 반환합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+var elXY = Ext.fly('elId').getXY() //elXY 배열
+setX, setY
+Ext.Element X / Y 좌표 (페이지에서)를 설정합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+Ext.fly('elId').setX(10);
+Ext.fly('elId').setY(10);
+setXY
+Ext.Element의 좌표 (페이지에서)를 설정합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+Ext.fly('elId').setXY([20,10])
+getOffsetsTo
+인수로 전달 요소 (Ext.Element)에서 본이 요소 자신의 상대 좌표를 반환합니다. 이 메서드를 호출하는 요소 인수로 전달 요소 모두 DOM 트리에 포함되어 있어야합니다.
+var elOffsets = Ext.fly('elId').getOffsetsTo(anotherEl);
+getLeft, getRight
+왼쪽 / 오른쪽의 X 좌표를 반환합니다
+var elLeft  = Ext.fly('elId').getLeft();
+var elRight = Ext.fly('elId').getRight();
+getTop, getBottom
+위쪽 / 아래쪽의 Y 좌표를 반환합니다
+var elTop    = Ext.fly('elId').getTop();
+var elBottom = Ext.fly('elId').getBottom();
+setLeft, setRight
+요소의 left / right (CSS)을 직접 설정합니다
+Ext.fly('elId').setLeft(25);
+Ext.fly('elId').setRight(15);
+setTop, setBottom
+요소의 top / bottom (CSS)을 직접 설정합니다 세트는 요소의 최상위 순위에 직접적으로 CSS 스타일을 (setY 대신에) 사용합니다.
+Ext.fly('elId').setTop(12);
+Ext.fly('elId').setBottom(15);
+setLocation
+Ext.Element의 좌표 (페이지에서)를 설정합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+Ext.fly('elId').setLocation(15,32)
+moveTo
+Ext.Element의 좌표 (페이지에서)를 설정합니다. 이 메서드를 호출할 때는 Ext.Element는 DOM 트리에 포함되어 있어야합니다 (disply : none 또는 DOM 트리에 포함되어 있지 않은 경우에는 false를 반환합니다).
+Ext.fly('elId').moveTo(12,17)
+position
+Ext.Element의 position을 설정합니다. 기본적으로 "relative"로 설정됩니다 (사전에 CSS 등으로 position이 설정되지 않은 경우).
+Ext.fly('elId').position("relative");
+clearPositioning
+position 메서드에 설정된 값을 원래의 상태로 되돌립니다.
+Ext.fly('elId').clearPositioning();
+Ext.fly('elId').clearPositioning("top");      
+getPositioning
+현재 설정되어있는 위치 관련 CSS 속성을 개체 상수값을 반환합니다. 아래의 setPositioning로 변경하기 전에 상태를 저장할 때 유용합니다.
+var pos = Ext.fly('elId').getPositioning();
+setPositioning
+getPositioning 메서드가 반환하는 형식의 인수를 요소의 위치 정보를 설정합니다.
+Ext.fly('elId').setPositioning({
+    left: 'static',
+    right: 'auto'
+});        
+translatePoints
+페이지 좌표를 CSS의 left / top 값으로 변환합니다
+// {left:translX, top: translY}
+var points = Ext.fly('elId').translatePoints(15,18); 
+애니메이션 기능
+
+Ext Core는 아니메숀뿌라구인가 포함되어있어, 여러 애니메이션 효과에 대해서도 미리 제공하고 있습니다. 또한이 플러그인은 Ext.Element에서 사용할 수있는 메서드로 설정되어 있기 때문에, 예를 들면 아래와 같은 것도 간단하게 가능하게됩니다 :
+
+예를 들어 애니메이션이 완료된 시점에서 어떤 콜백 함수를 호출하고자 할 때에는 아래와 같이하면됩니다 :
+Ext.fly('slideEl').slideOut('r');
+
+위의 코드를 Firebug의 콘솔에 복사하여 실행하여보십시오. 상기 이외에도 기본적인 애니메이션 효과에 대해서는 거의 모든 Ext Core에 미리 포함하고 있습니다. Ext Core 애니메이션 효과는 모든 개체 상수값에 의한 유연한 구성이 가능 해지고 있기 때문에, 기본 동작을 변경하려는 경우에 쉽게 대응 가능합니다. 예를 들어 애니메이션이 완료된 시점에서 어떤 콜백 함수를 호출하고자 할 때에는 아래와 같이하면됩니다 :
+Ext.fly('slideEl').slideOut('r', {
+    callback : function(){
+        alert('Finished sliding the element out');
+    }
+});
+Ext Core 애니메이션은 8 방향의 앵커를 지원하고 있습니다. 
+즉, 애니메이션의 시작 또는 끝 부분으로 8 개의 다른 위치를 지정할 수있다는 것입니다.
+앵커 값	설명
+tl	왼쪽 구석
+t	위쪽 중앙
+tr	오른쪽 상단 구석
+l	왼쪽 중앙
+r	오른쪽 중앙
+b	왼쪽 아래 구석
+bl	아래쪽 중앙
+br	오른쪽 아래 구석 에서는 각 메서드 h 자세히 살펴 보도록하자 :
+slideIn / slideOut
+Ext.Element을 현재보기에 밀어 등장 / 퇴장시킵니다. 슬라이드 효과 기점으로 기준점을 지정할 수도 있습니다. 이 메서드는 필요에 따라 슬라이드시키는 Ext.Element 고정 크기의 컨테이너 요소로 래핑합니다.
+//기본값은 위쪽 중앙에서 등장
+el.slideIn();
+//기본값은 아래쪽 중앙에 슬라이드하면서 퇴장
+el.slideOut();
+ 
+//위의 기본 동작을 명시적으로 콘피그옵션으로 나타낸 경우
+el.slideIn('t', {
+    easing: 'easeOut',
+    duration: .5
+});
+el.slideOut('t', {
+    easing: 'easeOut',
+    duration: .5,
+    remove: false,
+    useDisplay: false
+});            
+puff
+모든 방향으로 확산되면서 페이드 아웃시킵니다. 페이드 아웃 후 요소는 "visibility : hidden"상태로되어있는 것만을 위해 블록 요소의 경우는 문서에 공백이 발생하게됩니다. 필요에 따라 콘휘구오뿌숀에 'remove'을 사용하여 DOM 트리에서 제거하도록하십시오.
+el.puff();
+//  위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+el.puff({
+    easing: 'easeOut',
+    duration: .5,
+    remove: false,
+    useDisplay: false
+});
+switchOff
+클릭된 것처럼 번 깜박 후 중앙 부분을 향해 수축시킵니다 (TV 스위치를 끌 때 이미지). 위의 puff 메서드와 마찬가지로 수축 후의 요소는 "visibility : hidden"상태로되어있는 것만을 위해 블록 요소의 경우는 문서에 공백이 발생하게됩니다. 필요에 따라 콘휘구오뿌숀에 'remove'을 사용하여 DOM 트리에서 제거하도록하십시오.
+el.switchOff();
+ 
+//위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+el.switchOff({
+    easing: 'easeIn',
+    duration: .3,
+    remove: false,
+    useDisplay: false
+});
+하이라이트
+Ext.Element의 배경색을 변경 서서히 원래 색으로 복원하여 하이라이트 효과를 발생시킵니다
+(기본적으로 background - color의 색상을 변경할 수 있지만 콘휘구오뿌숀의 "attr"가 다른 항목에 변경할 수도 있습니다.)
+만약 원래의 색상이 설정되지 않은 경우 콘피그옵션의 "endColor"를 지정하십시오 (애니메이션 후 endColor도 삭제됩니다.)
+el.highlight();
+ 
+//위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+el.highlight("ffff9c", {
+    // 색상 설정이 가능한 CSS 속성인 경우 어떤 것도 가능 
+    attr: "background-color", 
+    endColor:"ffffff",
+    easing: 'easeIn',
+    duration: 1
+});  
+frame
+확대됨에 따라 약해져가는 파문을 빚고이 요소에주의를 흡수합니다.
+el.frame();
+ 
+// 위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+el.frame("C3DAF9", 1, {
+    duration: 1 // 각각 파문의 확산 시간
+     //주의 : "easing"는이 메서드는 사용할 수 없습니다
+}); 
+pause
+여러 애니메이션 효과를 계속 실행하는 동안 일시 중지 기간을 삽입합니다. pase 메서드 다음에 애니메이션 효과가 아무것도 설정되어 있지 않으면 아무것도 일어나지 않습니다.
+el.pause (1);
+fadeIn / fadeOut
+Ext.Element 페이드 인 / 아웃시킵니다. 애니메이션 효과 종료시의 투명도 콘휘구오뿌숀의 "endOpacity"으로 설정할 수 있습니다 (Internet Explorer에서 다시 그릴 때 "useDisplay : true"를 설정해야함을 명심하십시오).
+// opacity0~100%
+el.fadeIn();
+el.fadeOut();
+ 
+// 위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+el.fadeIn({
+    endOpacity: 1, //0부터 1 사이의 숫자
+    easing: 'easeOut',
+    duration: .5
+});
+el.fadeOut({
+    endOpacity: 0, // 0부터 1 사이의 숫자
+    easing: 'easeOut',
+    duration: .5,
+    remove: false,
+    useDisplay: false
+});       
+scale
+현재 높이 폭에서 인수로 전달 높이 너비로 크기 변경에 애니메이션 효과를 추가.
+//100으로 설정
+el.scale(100, 100);
+ 
+//  위의 기본 동작을 명시적으로 콘휘구오뿌숀로 나타낸 경우
+// 높이와 너비에 null을 전달하면 현재 값을 기본값 로 설정됩니다
+el.scale(
+    100,
+    100, {
+        easing: 'easeOut',
+        duration: .35
+    }
+);
+shift
+Ext.Element 크기, 좌표, 투명도의 변화를 결합한 애니메이션 효과를 일으 킵니다.
+명시적으로 지정된 속성만 변화의 대상이됩니다.
+효과를 발생시키기 위해서는 적어도 크기, 좌표, 투명도의 어떤 것이나 1 개를 지정해야합니다.
+el.shift({ x: 200, height: 50, opacity: .8 });
+ 
+// 위의 기본 동작을 명시적으로 콘휘구오뿌숀에서 표 경우
+el.shift({
+    width: [element's width],
+    height: 50
+    x: 200
+    y: [element's y position],
+    opacity: .8
+    easing: 'easeOut',
+    duration: .35
+});
+ghost
+페이드 아웃하면서 슬라이드 아웃 가고 퇴장시킵니다. 슬라이드 효과 기점으로 기준점을 지정할 수도 있습니다.
+el.ghost();
+ 
+// 위의 기본 동작을 명시적으로 콘피그옵션으로 나타낸 경우
+el.ghost('b', {
+    easing: 'easeOut',
+    duration: .5,
+    remove: false,
+    useDisplay: false
+});
+복잡한 애니메이션
+위의 미리 설정된 효과뿐만 아니라보다 복잡한 효과에 대해서도 Ext Core의 animate 메소드를 사용하면 생성할 수 있습니다. 아래의 코드를 Firebug의 콘솔에서 실행하여보십시오.
+var el = Ext.get('complexEl')
+el.animate({
+    borderWidth: {to: 3, from: 0},
+    opacity: {to: .3, from: 1},
+    height: {to: 50, from: el.getHeight()},
+    width: {to: 300, from: el.getWidth()}   
+});
+그외 요소
+
+다음 메소드는 상기 분류에 해당되지 않지만, 매우 편리한 방법입니다 :
+
+focus
+요소에 포커스하려고합니다. 예외가 발생하면 무시됩니다.
+el.focus();
+blur
+요소에 포커스를 제거하고자 (blur)입니다. 예외가 발생하면 무시됩니다.
+el.blur();
+getValue
+속성 "value"값을 반환합니다.
+el.getValue();
+el.getValue(true);
+isBorderBox
+감지 브라우저가 IE로하고 "non - strict mode"에서 실행하는 경우 true를 반환합니다.
+(Ext.isBorderBox){}면
+getAttributeNS
+네임 스페이스가 지정된 속성 값을 반환합니다.
+el.getAttributeNS (""," 이름 ");
